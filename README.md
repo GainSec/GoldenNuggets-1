@@ -6,7 +6,7 @@ Burp Suite Extension to easily create Wordlists based off URI, Parameters, Post 
 
 ## Getting Started
 
-1. Make sure you have Jython setup in Burp Suite 2. Import Extension Manually
+Import Extension Manually
 
 ### Prerequisites
 
