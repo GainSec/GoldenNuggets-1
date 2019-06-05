@@ -19,7 +19,7 @@ Make sure you change the location of the wordlist output file
 
 ## Authors
 
-* **Jon Gaines** - *Initial work* - [GainSec](https://github.com/GainSec)i
+* **Jon Gaines** - *Initial work* - [GainSec](https://github.com/GainSec)
 
 ## License
 
