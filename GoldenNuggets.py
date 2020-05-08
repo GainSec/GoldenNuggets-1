@@ -3,10 +3,12 @@ from java.util import ArrayList
 from javax.swing import JMenuItem
 import threading
 import sys
+import os
+import re
 #Burp Plug-In that parses sitemap for URI wordlist - Param Wordlist - Post Request Data - Interesting Headers
 #v0.3 Writes URI and URI Param Wordlist
 #To Do: Post Request Data and Interesting Headers
-#Created by GainSec; Shoutout to Th3W1zard for help
+#Created by GainSec; Shoutout to JosephRC for the help
 #Make sure to change File location for output
 try:
     from exceptions_fix import FixBurpExceptions
@@ -14,27 +16,25 @@ except ImportError:
     pass    
 
 class BurpExtender(IBurpExtender, IContextMenuFactory):
+    def __init__(self):
+        self.urls = []
+        self.uris = []
+        self.params = []
+        self.words = []
+
     def registerExtenderCallbacks(self, callbacks):
-        
         sys.stdout = callbacks.getStdout()
         self.callbacks = callbacks
         self.helpers = callbacks.getHelpers()
-        self.callbacks.setExtensionName("Gold-Nuggets-TreeHouse-WL")
+        self.callbacks.setExtensionName("GoldenNuggets")
         callbacks.registerContextMenuFactory(self)
-        
         return
 
     def createMenuItems(self, invocation):
         self.context = invocation
         menuList = ArrayList()
-        menuItem = JMenuItem("URI Nuggets from Selected",
+        menuItem = JMenuItem("Mine Dem Nuggets",
                               actionPerformed=self.createWordlistFromSelected)
-        menuList.add(menuItem)
-        menuItem = JMenuItem("URI Nuggets from Scope",
-                              actionPerformed=self.createWordlistFromScope)
-        menuList.add(menuItem)
-        menuItem = JMenuItem("URI Param Nuggets from Scope", 
-        					  actionPerformed=self.createParamlistFromSelected)
 
         menuList.add(menuItem)
         return menuList
@@ -45,94 +45,89 @@ class BurpExtender(IBurpExtender, IContextMenuFactory):
         t.daemon = True
         t.start()
 
-    def createWordlistFromScope(self, event):
-        self.fromScope = True
-        t = threading.Thread(target=self.createWordlist)
-        t.daemon = True
-        t.start()
-
-    def createParamlistFromSelected(self, event):
-    	self.fromScope = True
-    	t = threading.Thread(target=self.createParamlist)
-    	t.daemon = True
-    	t.start()
-
-    def createParamlist(self):
-    	httpTraffic = self.context.getSelectedMessages()
-    	hostUrls = []
-    	for traffic in httpTraffic:
-    		try:
-    			hostUrls.append(str(traffic.getUrl()))
-    		except UnicodeEncodeError:
-    			continue
-
-    	urllist = []
-    	siteMapData = self.callbacks.getSiteMap(None)
-    	for entry in siteMapData:
-    		requestInfo = self.helpers.analyzeRequest(entry)
-    		url = requestInfo.getUrl()
-    		try:
-    			decodedUrl = self.helpers.urlDecode(str(url))
-    		except Exception as e:
-    			continue
-
-    		if self.fromScope and self.callbacks.isInScope(url):
-    			urllist.append(decodedUrl)
-    		else:
-    			for url in hostUrls:
-    				if decodedUrl.startswith(str(url)):
-    					urllist.append(decodedUrl)
-
-    	filenamelist = []
-    	for entry in urllist:
-    		filenamelist.append(entry.split('?',3)[-1])
-
-    	for word in sorted(set(filenamelist)):
-            with open('/Users/xeno/Wordlists-Xeno/Custom/GoldNuggets-Param-WL.txt', 'a') as f:
-                try:
-                    print (word)
-                    f.write(word +'\n')
-                except UnicodeEncodeError:
-                    continue
 
     def createWordlist(self):
-        httpTraffic = self.context.getSelectedMessages()        
+        # print('test')
+        uriList = []
+        words = []
+        # Create a list of hosts from the context       
         hostUrls = []
+        # Create a unique Urls list
+        urlList = []
+        ##################################
+        # Get URLs from Site Map / Traffic
+        ##################################
+        # Get the HTTP trffic from the Burp Context
+        httpTraffic = self.context.getSelectedMessages() 
+        # For each item in the http traffic
         for traffic in httpTraffic:
+            # Try to append each host url to the Host Urls list
             try:
                 hostUrls.append(str(traffic.getUrl()))
             except UnicodeEncodeError:
                 continue
-
-        urllist = []
+        # Grab the site map data from the context
         siteMapData = self.callbacks.getSiteMap(None)
+        # For each entry in the site map data
         for entry in siteMapData:
+            # Get the request info from the entry
             requestInfo = self.helpers.analyzeRequest(entry)
+            # Get the url from the request info
             url = requestInfo.getUrl()
+            # Try to decode the URL
             try:
                 decodedUrl = self.helpers.urlDecode(str(url))
             except Exception as e:
                 continue
-
-            if self.fromScope and self.callbacks.isInScope(url):
-                urllist.append(decodedUrl)
-            else:
-                for url in hostUrls:
-                    if decodedUrl.startswith(str(url)):
-                        urllist.append(decodedUrl)
-        
-        filenamelist = []
-        for entry in urllist:
-            filenamelist.append(entry.split('/',3)[-1])
-
-        for word in sorted(set(filenamelist)):
-            if word:
-                with open('/Users/xeno/Wordlists-Xeno/Custom/GoldNuggets-WL.txt', 'a') as f:
-                    try:
-                        print (word)
-                        f.write(word +'\n')
-                    except UnicodeEncodeError:
-                        continue
+            # For each url in the Host URLs list
+            for url in hostUrls:
+                # If the decoded URL matches the URL from the list
+                if decodedUrl.startswith(str(url)):
+                    # Append the decoded url to the URLs list
+                    self.urls.append(decodedUrl)
+        ##################
+        # URIS
+        # print('##########')
+        # print('## URIS ##')
+        # print('##########')
+        for line in self.urls:
+            x = line.split(line.split('/')[2])[-1]
+            # print(x)
+            self.uris.append(x)
+        # Now write to file
+        with open(os.path.expanduser('~/gn_Uris.txt'), 'a') as f:
+            for uri in self.uris:
+                f.write(uri+'\n')
+        # WORDLISTS
+        # print('###########')
+        # print('## WORDS ##')
+        # print('###########')
+        for uri in self.uris:
+            for item in re.split('\W',uri):
+                if item != '':
+                    # print(item)
+                    self.words.append(item)
+        # Now write to file
+        with open(os.path.expanduser('~/gn_Words.txt'), 'a') as f:
+            for word in self.words:
+                f.write(word+'\n')
+        # PARAMS
+        # print('############')
+        # print('## PARAMS ##')
+        # print('############')
+        for uri in self.urls:
+            param = uri.split('?')[-1]
+            if '/' not in param and param != "":
+                # print(ff)
+                self.params.append(param)
+        # Now write to file
+        with open(os.path.expanduser('~/gn_Params.txt'), 'a') as f:
+            for param in self.params:
+                f.write(param+'\n')
+        # THIS WORKS FOR REFERRENCE
+        # with open(os.path.expanduser('~/gn_Uris.txt'), 'r') as f:
+        #     for line in f:
+        #         self.tempUris.append(line)
 try:
     FixBurpExceptions()
 except:
