@@ -19,7 +19,7 @@ Note it outputs all three files to the users home directory
 ## Authors
 
 * **Jon Gaines** - *Initial work* - [GainSec](https://github.com/GainSec)
-* **JosephRC** - *Refactor* - [JosephRC] (https://github.com/JosephRC)
+* **JosephRC** - *Refactor* - [JosephRC](https://github.com/JosephRC)
 
 ## To Do
 
