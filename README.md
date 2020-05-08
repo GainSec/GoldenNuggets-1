@@ -23,8 +23,8 @@ Note it outputs all three files to the users home directory
 
 ## To Do
 
-Add Post Data Parameters to the Parameter Wordlist
-Make sure only unique entries are appended to the files
+* Add Post Data Parameters to the Parameter Wordlist
+* Make sure only unique entries are appended to the files
 
 ## License
 
