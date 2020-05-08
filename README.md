@@ -2,7 +2,7 @@
 
 ![Chicken Pete](https://vignette.wikia.nocookie.net/knd/images/2/23/Chickenpete.png/revision/latest/scale-to-width-down/250)
 
-Burp Suite Extension to easily create Wordlists based off URI, URI Parameters and URLs (Minus the Domain)
+Burp Suite Extension to easily create Wordlists based off URI, URI Parameters and Single Words (Minus the Domain)
 
 ## Getting Started
 
