@@ -5,11 +5,9 @@ import threading
 import sys
 import os
 import re
-#Burp Plug-In that parses sitemap for URI wordlist - Param Wordlist - Post Request Data - Interesting Headers
-#v0.3 Writes URI and URI Param Wordlist
+#v0.4 Writes URI, Single Word and URI Param Wordlist
 #To Do: Post Request Data and Interesting Headers
 #Created by GainSec; Shoutout to JosephRC for the help
-#Make sure to change File location for output
 try:
     from exceptions_fix import FixBurpExceptions
 except ImportError:
