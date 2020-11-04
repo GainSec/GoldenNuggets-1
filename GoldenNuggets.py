@@ -15,10 +15,10 @@ except ImportError:
 
 class BurpExtender(IBurpExtender, IContextMenuFactory):
     def __init__(self):
-        self.urls = []
-        self.uris = []
-        self.params = []
-        self.words = []
+        self.urls = set()
+        self.uris = set()
+        self.params = set()
+        self.words = set()
 
     def registerExtenderCallbacks(self, callbacks):
         sys.stdout = callbacks.getStdout()
@@ -82,7 +82,7 @@ class BurpExtender(IBurpExtender, IContextMenuFactory):
                 # If the decoded URL matches the URL from the list
                 if decodedUrl.startswith(str(url)):
                     # Append the decoded url to the URLs list
-                    self.urls.append(decodedUrl)
+                    self.urls.add(decodedUrl)
         ##################
         # URIS
         # print('##########')
@@ -91,11 +91,14 @@ class BurpExtender(IBurpExtender, IContextMenuFactory):
         for line in self.urls:
             x = line.split(line.split('/')[2])[-1]
             # print(x)
-            self.uris.append(x)
-        # Now write to file
+            self.uris.add(x)
+        # # Now write to file
         with open(os.path.expanduser('~/gn_Uris.txt'), 'a') as f:
             for uri in self.uris:
-                f.write(uri+'\n')
+                try:
+                    f.write(uri+'\n')
+                except:
+                    pass
         # WORDLISTS
         # print('###########')
         # print('## WORDS ##')
@@ -104,11 +107,14 @@ class BurpExtender(IBurpExtender, IContextMenuFactory):
             for item in re.split('\W',uri):
                 if item != '':
                     # print(item)
-                    self.words.append(item)
+                    self.words.add(item)
         # Now write to file
         with open(os.path.expanduser('~/gn_Words.txt'), 'a') as f:
             for word in self.words:
-                f.write(word+'\n')
+                try:
+                    f.write(word+'\n')
+                except:
+                    pass
         # PARAMS
         # print('############')
         # print('## PARAMS ##')
@@ -117,11 +123,14 @@ class BurpExtender(IBurpExtender, IContextMenuFactory):
             param = uri.split('?')[-1]
             if '/' not in param and param != "":
                 # print(ff)
-                self.params.append(param)
+                self.params.add(param)
         # Now write to file
         with open(os.path.expanduser('~/gn_Params.txt'), 'a') as f:
             for param in self.params:
-                f.write(param+'\n')
+                try:
+                    f.write(param+'\n')
+                except:
+                    pass
         # THIS WORKS FOR REFERRENCE
         # with open(os.path.expanduser('~/gn_Uris.txt'), 'r') as f:
         #     for line in f:
